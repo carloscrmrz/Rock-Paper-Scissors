@@ -1,22 +1,62 @@
+/*
+function resetGame() {
+	playerScore = 0;
+	computerScore = 0;
+}
+*/
+
+function create_image(src, alt, where) {
+	var img = document.createElement("img");
+	img.alt = alt;
+	img.src = src;
+	img.setAttribute('style', 'max-height: 600px; max-width: 400px; margin: 0 0 10px 0;');
+	where.appendChild(img);
+
+	document.querySelector(".score-board").style.margin = '0';
+}
+
 let playerScore = 0;
 let computerScore = 0;
-
+const cScoreText = document.querySelector('#cScore');
+const pScoreText = document.querySelector('#pScore');
+const winnerImg = document.querySelector('#winner-img');
+const startGame = document.querySelector('#start-game');
 
 const RPSARRAY = ['Rock','Paper','Scissors'];
 
 function computerPlay() {
 	return RPSARRAY[Math.floor((Math.random() * RPSARRAY.length))];
+} 
+
+
+function playGame() {
+	
+	playerScore = 0;
+	computerScore = 0;
+
+	const buttons = document.querySelectorAll(".btn");
+	buttons.forEach(btn => btn.addEventListener('click', playRound));
+	
+		if ( playerScore == 5 || computerScore == 5 ) {
+			buttons.forEach(btn => btn.removeEventListener('click', playRound));
+			document.querySelector('.btn').style.cursor = 'not-allowed';
+
+			if (playerScore > computerScore) {
+				create_image('./media/GANASTE.png', "You're the MF winner", winnerImg);
+			} else {
+				create_image('./media/PERDISTE.png', "We lost the battle", winnerImg);
+			}
+		startGame.innerText = "Play again?";
+	}
+	
 }
 
-
-/* Here we create a function to see who wins the game, to separate and encapsulate the various cases so the round function is easier to read */
-
-function getWinner(selectionP, selectionC) {
-	if (( selectionP == 'rock' && selectionC == 'scissors' ) || 
-	    ( selectionP == 'scissors' && selectionC == 'paper' ) ||
-	    ( selectionP == 'paper' && selectionC == 'rock' ) ) {
+function getWinner(pSelect, cSelect) {
+	if (( pSelect == 'rock' && cSelect == 'scissors') || 
+            ( pSelect == 'scissors' && cSelect == 'paper') || 
+	    ( pSelect == 'paper' && cSelect == 'rock' )) {
 		return 'player'
-	} else if ( selectionP == selectionC ) {
+	} else if (pSelect == cSelect) {
 		return 'tie'
 	} else {
 		return 'computer'
@@ -24,48 +64,30 @@ function getWinner(selectionP, selectionC) {
 }
 
 
-function playRound(playerSelection, computerSelection) {
+function playRound() {
 	computerSelection = computerPlay().toLowerCase();
-	playerSelection = prompt('Write out your play to win against the evil computer!').toLowerCase();
-	let roundWinner = getWinner(playerSelection, computerSelection);
+	playerSelection = this.dataset.play;
 
+	roundWinner = getWinner(playerSelection, computerSelection);
+	
+	/*
+	const winnerMsg = document.createElement('p');
 	if ( roundWinner == 'player' ) {
-		console.log(`${playerSelection} beats ${computerSelection}.`);
-	} else if ( roundWinner == 'computer' ) {
-		console.log(`${computerSelection} beats ${playerSelection}`);
+		winnerMsg.innerText = `YOU win this round! ${playerSelection} beats ${computerSelection}`;
+	} else {
+		winnerMsg.innerText = `That machine has played us fools! ${computerSelection} beats ${playerSelection}`
 	}
+	*/
+	
+
 	updateScore(roundWinner);
 }
 
-
-
 function updateScore(winner) {
-	if ( winner == 'player' ) {
-		playerScore++;
-		console.log('You won this round!');
-	} else if ( winner == 'computer' ) {
-		computerScore++;
-		console.log('That MF won this round, but not the war!');
-	} else {
-		console.log('No one won, but we will get that bunch of transistors next time!');
-	}
+	if (winner == 'player') { playerScore++; pScoreText.innerText = `YOU - ${playerScore}`; }
+	else if (winner == 'computer') { computerScore++; cScoreText.innerText = `COMPUTER - ${computerScore}`; }
+	else return;
 }
 
-function game() {
-	for ( let i = 1; i < 6; i++ ) { 
-		playRound();	
-	}
-	
 
-	if ( playerScore > computerScore ) { 
-		return "WE'RE THE MF CHAMPIONS!!!!!"
-	} else {
-		return "Well, we did what we could, we'll do it better next time"
-	}
-}
-
-function resetGame() {
-	playerScore = 0;
-	computerScore = 0;
-}
-
+startGame.addEventListener('click', playGame());
