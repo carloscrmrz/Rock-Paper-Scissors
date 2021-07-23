@@ -21,35 +21,40 @@ const cScoreText = document.querySelector('#cScore');
 const pScoreText = document.querySelector('#pScore');
 const winnerImg = document.querySelector('#winner-img');
 const startGame = document.querySelector('#start-game');
-
+const buttons = document.querySelectorAll(".btn");
 const RPSARRAY = ['Rock','Paper','Scissors'];
+const winnerMsg = document.createElement('p');
+
+document.querySelector(".header").appendChild(winnerMsg);
+
 
 function computerPlay() {
 	return RPSARRAY[Math.floor((Math.random() * RPSARRAY.length))];
 } 
 
 
-function playGame() {
-	
-	playerScore = 0;
-	computerScore = 0;
 
-	const buttons = document.querySelectorAll(".btn");
-	buttons.forEach(btn => btn.addEventListener('click', playRound));
-	
-		if ( playerScore == 5 || computerScore == 5 ) {
-			buttons.forEach(btn => btn.removeEventListener('click', playRound));
-			document.querySelector('.btn').style.cursor = 'not-allowed';
+buttons.forEach(btn => 
+	{btn.addEventListener('click', () => {
 
-			if (playerScore > computerScore) {
-				create_image('./media/GANASTE.png', "You're the MF winner", winnerImg);
-			} else {
-				create_image('./media/PERDISTE.png', "We lost the battle", winnerImg);
-			}
-		startGame.innerText = "Play again?";
-	}
+		playRound(btn.dataset.play);
+		if ( computerScore === 5 || playerScore === 5 ) {
+			declareWinner();
+			startGame.innerText = "Play again?";
+			startGame.addEventListener('click', () => {
+				computerScore = 0;
+				playerScore = 0;
+				winnerImg.removeChild(winnerImg.getElementsByTagName("img")[0]);
+				pScoreText.innerText = `YOU - ${playerScore}`;
+				cScoreText.innerText = `COMPUTER - ${computerScore}`;
+				startGame.innerText = "Let's do this";
+				winnerMsg.innerText = '';
+			});
+		}
 	
-}
+	})
+	});
+
 
 function getWinner(pSelect, cSelect) {
 	if (( pSelect == 'rock' && cSelect == 'scissors') || 
@@ -64,20 +69,19 @@ function getWinner(pSelect, cSelect) {
 }
 
 
-function playRound() {
+function playRound(playerSelection) {
 	computerSelection = computerPlay().toLowerCase();
-	playerSelection = this.dataset.play;
 
 	roundWinner = getWinner(playerSelection, computerSelection);
 	
-	/*
-	const winnerMsg = document.createElement('p');
 	if ( roundWinner == 'player' ) {
 		winnerMsg.innerText = `YOU win this round! ${playerSelection} beats ${computerSelection}`;
+	} else if ( roundWinner == 'computer' ) {
+		winnerMsg.innerText = `That machine has played us fools! ${computerSelection} beats ${playerSelection}`;
 	} else {
-		winnerMsg.innerText = `That machine has played us fools! ${computerSelection} beats ${playerSelection}`
+		winnerMsg.innerText = `That was a tie`;
 	}
-	*/
+	
 	
 
 	updateScore(roundWinner);
@@ -89,5 +93,12 @@ function updateScore(winner) {
 	else return;
 }
 
+function declareWinner() {
+	if (playerScore > computerScore) {
+		create_image('./media/GANASTE.png', "You saved the human race", winnerImg);
+	} else {
+		create_image('./media/PERDISTE.png', "Well, we've lost", winnerImg);
+	}
+}
 
-startGame.addEventListener('click', playGame());
+
